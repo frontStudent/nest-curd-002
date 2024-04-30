@@ -15,7 +15,7 @@ export class User {
 
   @Column({ length: 20 })
   username: string;
-  @Column({ length: 20, default: '123456' })
+  @Column({ default: '123456' })
   password: string;
   @OneToMany(() => Photo, (photo) => photo.user)
   photos: Photo[];

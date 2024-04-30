@@ -5,11 +5,12 @@ import {
   Query,
   Get,
   InternalServerErrorException,
+  UseGuards,
 } from '@nestjs/common';
 import { PhotoService } from './photo.service';
 import { CreatePhotoDto } from './dto/create-photo.dto';
 import { UpdatePhotoDto } from './dto/update-photo.dto';
-
+import { LoginGuard } from 'src/login.guard';
 @Controller('photo')
 export class PhotoController {
   constructor(private readonly photoService: PhotoService) {}
@@ -44,6 +45,7 @@ export class PhotoController {
     });
   }
 
+  @UseGuards(LoginGuard)
   @Post('query')
   findAll(@Body('id') id: string) {
     if (id) {

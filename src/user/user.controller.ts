@@ -2,8 +2,11 @@ import {
   Controller,
   Post,
   Body,
+  Res,
+  Inject,
   InternalServerErrorException,
 } from '@nestjs/common';
+import {JwtService} from '@nestjs/jwt';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -11,6 +14,40 @@ import { UpdateUserDto } from './dto/update-user.dto';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Inject(JwtService)
+  private jwtService: JwtService;
+
+  @Post('login')
+  async login(
+    @Body() user: CreateUserDto,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const foundUser = await this.userService.login(user);
+
+    if (foundUser) {
+      const token = await this.jwtService.signAsync({
+        user: {
+          username: foundUser.username,
+        },
+      });
+      return {
+        code: '1',
+        data: { token },
+        message: '登录成功！',
+      };
+    } else {
+      return {
+        code: '0',
+        message: '登录失败！',
+      };
+    }
+  }
+
+  @Post('register')
+  async register(@Body() user: CreateUserDto) {
+    return await this.userService.register(user);
+  }
 
   @Post('add')
   create(@Body() createUserDto: CreateUserDto) {
