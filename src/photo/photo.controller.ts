@@ -2,6 +2,8 @@ import {
   Controller,
   Post,
   Body,
+  Query,
+  Get,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { PhotoService } from './photo.service';
@@ -12,13 +14,17 @@ import { UpdatePhotoDto } from './dto/update-photo.dto';
 export class PhotoController {
   constructor(private readonly photoService: PhotoService) {}
 
-  @Post('addPhoto')
+  @Post('add')
   create(@Body() createPhotoDto: CreatePhotoDto) {
-    return this.photoService.create(createPhotoDto);
+    if (createPhotoDto.userId) {
+      return this.photoService.create(createPhotoDto);
+    }
+    throw new InternalServerErrorException({
+      message: '添加照片需传用户ID',
+    });
   }
 
-  @Post('updatePhoto')
-  //post请求不能用@Param用@Body
+  @Post('update')
   update(@Body('id') id: string, @Body() updatePhotoDto: UpdatePhotoDto) {
     if (id) {
       return this.photoService.update(+id, updatePhotoDto);
@@ -28,7 +34,7 @@ export class PhotoController {
     });
   }
 
-  @Post('deletePhoto')
+  @Post('delete')
   remove(@Body('id') id: string) {
     if (id) {
       return this.photoService.remove(+id);
@@ -38,11 +44,17 @@ export class PhotoController {
     });
   }
 
-  @Post('queryPhoto')
+  @Post('query')
   findAll(@Body('id') id: string) {
     if (id) {
       return this.photoService.findOne(+id);
     }
     return this.photoService.findAll();
+  }
+
+  @Get('star')
+  star(@Query('id') id: string) {
+    console.log('id', id);
+    return this.photoService.star(+id);
   }
 }

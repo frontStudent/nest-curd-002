@@ -12,13 +12,12 @@ import { UpdateUserDto } from './dto/update-user.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post('addUserWithPhotos')
+  @Post('add')
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
-  @Post('updateUserWithPhotos')
-  //post请求不能用@Param用@Body
+  @Post('update')
   update(@Body('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     if (id) {
       return this.userService.update(+id, updateUserDto);
@@ -28,7 +27,7 @@ export class UserController {
     });
   }
 
-  @Post('deleteUserWithPhotos')
+  @Post('delete')
   remove(@Body('id') id: string) {
     if (id) {
       return this.userService.remove(+id);
@@ -38,7 +37,7 @@ export class UserController {
     });
   }
 
-  @Post('queryUserWithPhotos')
+  @Post('query')
   findAll(@Body('id') id: string) {
     if (id) {
       return this.userService.findOne(+id);

@@ -15,6 +15,10 @@ export class Photo {
 
   @Column({ length: 20 })
   url: string;
+
+  @Column()
+  starNum: number;
+  
   @ManyToOne(() => User, (user) => user.photos)
   user: User;
   @CreateDateColumn()

@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { CreatePhotoDto } from './dto/create-photo.dto';
 import { UpdatePhotoDto } from './dto/update-photo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,20 +16,29 @@ export class PhotoService {
   ) {}
   async create(createPhotoDto: CreatePhotoDto) {
     const { userId, url } = createPhotoDto;
+
     const user = await this.userRepository.findOne({
       where: { id: userId },
       relations: ['photos'],
     });
 
+    if (!user) {
+      throw new InternalServerErrorException({
+        message: '该用户不存在',
+      });
+    }
+
     const newPhoto = new Photo();
+
     newPhoto.url = url;
     newPhoto.user = user;
     return await this.photoRepository.save(newPhoto);
   }
 
   async update(id: number, updatePhotoDto: UpdatePhotoDto) {
-    const qb = await this.photoRepository.createQueryBuilder();
-    return await qb.update().set(updatePhotoDto).where({ id }).execute();
+    // const qb = await this.photoRepository.createQueryBuilder();
+    // return await qb.update().set(updatePhotoDto).where({ id }).execute();
+    return await this.photoRepository.update(id, updatePhotoDto);
   }
 
   async findAll() {
@@ -43,7 +52,12 @@ export class PhotoService {
     });
   }
   async remove(id: number) {
-    const qb = await this.photoRepository.createQueryBuilder();
-    return await qb.delete().where({ id }).execute();
+    // const qb = await this.photoRepository.createQueryBuilder();
+    // return await qb.delete().where({ id }).execute();
+    return await this.photoRepository.delete(id);
+  }
+
+  async star(id: number) {
+    return await this.photoRepository.increment({ id }, 'starNum', 1)
   }
 }
